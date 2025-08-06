@@ -26,7 +26,7 @@ class ScheduleSeeder extends Seeder
                 "route_id" => Route::inRandomOrder()->first()->id,
                 "departure_time" => now(),
                 "arrival_time" => now()->addHour(),
-                "seat_available" => $train->seat - rand(1, $train->capacity),
+                "seat_available" => $train->capacity,
                 "price" => rand(150000, 1000000),
             ]);
         }

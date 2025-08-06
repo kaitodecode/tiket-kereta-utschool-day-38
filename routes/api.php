@@ -34,9 +34,9 @@ Route::prefix("auth")->controller(AuthController::class)->group(function(){
 Route::prefix("schedules")->controller(ScheduleController::class)->group(function () {
     Route::get("/", "index");
     Route::get("/{schedule}", "show");
-    Route::post("/", "store");
-    Route::put("/{schedule}", "update");
-    Route::delete("/{schedule}", "destroy");
+    Route::post("/", "store")->middleware("auth:sanctum");
+    Route::put("/{schedule}", "update")->middleware("auth:sanctum");
+    Route::delete("/{schedule}", "destroy")->middleware("auth:sanctum");
 });
 
 

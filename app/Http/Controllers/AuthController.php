@@ -4,6 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\Str;
 
 class AuthController extends Controller
 {
@@ -16,8 +20,8 @@ class AuthController extends Controller
      *         required=true,
      *         @OA\JsonContent(
      *             required={"email","password"},
-     *             @OA\Property(property="email", type="string", format="email"),
-     *             @OA\Property(property="password", type="string")
+     *             @OA\Property(property="email", type="string", format="email", example="admin@gmail.com"),
+     *             @OA\Property(property="password", type="string", example="password")
      *         )
      *     ),
      *     @OA\Response(
@@ -33,21 +37,36 @@ class AuthController extends Controller
     public function login(Request $request)
     {
         $request->validate([
-            'email' => 'required|email',
-            'password' => 'required',
+            'email' => 'required|email|max:255',
+            'password' => 'required|string|min:6',
         ]);
+
+        // Rate limiting
+        $key = Str::transliterate(Str::lower($request->input('email')).'|'.$request->ip());
+        
+        if (RateLimiter::tooManyAttempts($key, 5)) {
+            $seconds = RateLimiter::availableIn($key);
+            return $this->json(null, "Too many login attempts. Please try again in {$seconds} seconds.", 429);
+        }
 
         $user = User::where('email', $request->email)->first();
 
-        if (!$user || !password_verify($request->password, $user->password)) {
+        if (!$user || !Hash::check($request->password, $user->password)) {
+            RateLimiter::hit($key, 60); // Block for 1 minute
             return $this->json(null, 'Invalid credentials', 401);
         }
 
-        $token = $user->createToken('authToken')->plainTextToken;
+        RateLimiter::clear($key);
+        
+        // Revoke existing tokens for security
+        $user->tokens()->delete();
+        
+        $token = $user->createToken('authToken', ['*'], now()->addDays(7))->plainTextToken;
 
         return $this->json([
-            'user' => $user,
+            'user' => $user->only(['id', 'name', 'email', 'created_at']),
             'token' => $token,
+            'expires_at' => now()->addDays(7)->toISOString()
         ], 'Login successful', 200);
     }
 
@@ -65,9 +84,20 @@ class AuthController extends Controller
      */
     public function logout(Request $request)
     {
-        $request->user()->tokens()->delete();
+        try {
+            $user = $request->user();
+            
+            if (!$user) {
+                return $this->json(null, 'User not authenticated', 401);
+            }
 
-        return $this->json(null, 'Logout successful', 200);
+            // Delete only current token instead of all tokens
+            $user->currentAccessToken()->delete();
+            
+            return $this->json(null, 'Logout successful', 200);
+        } catch (\Exception $e) {
+            return $this->json(null, 'Logout failed', 500);
+        }
     }
 
     /**
@@ -84,7 +114,15 @@ class AuthController extends Controller
      */
     public function me(Request $request)
     {
-        return $this->json($request->user(), 'User data', 200);
+        try {
+            $user = $request->user();
+            
+            return $this->json([
+                'user' => $user->only(['id', 'name', 'email', 'created_at', 'updated_at'])
+            ], 'User data retrieved successfully', 200);
+        } catch (\Exception $e) {
+            return $this->json(null, 'Failed to retrieve user data', 500);
+        }
     }
 
     /**
@@ -113,23 +151,31 @@ class AuthController extends Controller
      */
     public function register(Request $request)
     {
-        $request->validate([
-            'name' => 'required',
-            'email' => 'required|email|unique:users',
-            'password' => 'required|min:8',
-        ]);
+        try {
+            $validated = $request->validate([
+                'name' => 'required|string|max:255|min:2',
+                'email' => 'required|email|max:255|unique:users,email',
+                'password' => 'required|string|min:8|confirmed',
+            ]);
 
-        $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => bcrypt($request->password),
-        ]);
+            $user = User::create([
+                'name' => $validated['name'],
+                'email' => $validated['email'],
+                'password' => Hash::make($validated['password']),
+            ]);
 
-        $token = $user->createToken('authToken')->plainTextToken;
+            $token = $user->createToken('authToken', ['*'], now()->addDays(7))->plainTextToken;
 
-        return $this->json([
-            'user' => $user,
-            'token' => $token,
-        ], 'Registration successful', 201);
+            return $this->json([
+                'user' => $user->only(['id', 'name', 'email', 'created_at']),
+                'token' => $token,
+                'expires_at' => now()->addDays(7)->toISOString()
+            ], 'Registration successful', 201);
+            
+        } catch (ValidationException $e) {
+            return $this->json(null, 'Validation failed', 422, $e->errors());
+        } catch (\Exception $e) {
+            return $this->json(null, 'Registration failed', 500);
+        }
     }
 }

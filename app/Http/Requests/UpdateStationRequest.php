@@ -15,7 +15,11 @@ class UpdateStationRequest extends BaseRequest
     public function rules()
     {
         return [
-            //
+            'name' => 'required|string',
+            'code' => 'required|string|',
+            'latitude' => 'required|string|',
+            'longitude' => 'required|string|',
+            'city' => 'required|string|',
         ];
     }
 }

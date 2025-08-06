@@ -834,6 +834,203 @@
                 }
             }
         },
+        "/api/stations": {
+            "get": {
+                "tags": [
+                    "Stations"
+                ],
+                "summary": "Get list of stations",
+                "operationId": "4720e59d102825141a63cf3349253ea0",
+                "parameters": [
+                    {
+                        "name": "city",
+                        "in": "query",
+                        "description": "Filter stations by city",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List of stations retrieved successfully"
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Stations"
+                ],
+                "summary": "Create a new station",
+                "operationId": "f64cd740423f20d1b8fb367b4e6d0ec2",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "name",
+                                    "code",
+                                    "latitude",
+                                    "longitude",
+                                    "city"
+                                ],
+                                "properties": {
+                                    "name": {
+                                        "type": "string"
+                                    },
+                                    "code": {
+                                        "type": "string"
+                                    },
+                                    "latitude": {
+                                        "type": "string"
+                                    },
+                                    "longitude": {
+                                        "type": "string"
+                                    },
+                                    "city": {
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Station created successfully"
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    }
+                }
+            }
+        },
+        "/api/stations/{station}": {
+            "get": {
+                "tags": [
+                    "Stations"
+                ],
+                "summary": "Get a specific station",
+                "operationId": "35511543ba9348efce1f66b13196465f",
+                "parameters": [
+                    {
+                        "name": "station",
+                        "in": "path",
+                        "description": "Station ID",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Station retrieved successfully"
+                    },
+                    "404": {
+                        "description": "Station not found"
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "Stations"
+                ],
+                "summary": "Update a station",
+                "operationId": "680e0f1079630c957bd5354c075120f6",
+                "parameters": [
+                    {
+                        "name": "station",
+                        "in": "path",
+                        "description": "Station ID",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "name",
+                                    "code",
+                                    "latitude",
+                                    "longitude",
+                                    "city"
+                                ],
+                                "properties": {
+                                    "name": {
+                                        "type": "string"
+                                    },
+                                    "code": {
+                                        "type": "string"
+                                    },
+                                    "latitude": {
+                                        "type": "string"
+                                    },
+                                    "longitude": {
+                                        "type": "string"
+                                    },
+                                    "city": {
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Station updated successfully"
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    },
+                    "404": {
+                        "description": "Station not found"
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "Stations"
+                ],
+                "summary": "Delete a station",
+                "operationId": "8019fd737c87fa47230b9607d5a19515",
+                "parameters": [
+                    {
+                        "name": "station",
+                        "in": "path",
+                        "description": "Station ID",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Station deleted successfully"
+                    },
+                    "404": {
+                        "description": "Station not found"
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    }
+                }
+            }
+        },
         "/api/trains": {
             "get": {
                 "tags": [
@@ -1103,6 +1300,10 @@
         {
             "name": "Schedules",
             "description": "Schedules"
+        },
+        {
+            "name": "Stations",
+            "description": "Stations"
         },
         {
             "name": "Trains",

@@ -117,6 +117,10 @@ class AuthController extends Controller
         try {
             $user = $request->user();
             
+            if (!$user) {
+                return $this->json(null, 'User not authenticated', 401);
+            }
+            
             return $this->json([
                 'user' => $user->only(['id', 'name', 'email', 'created_at', 'updated_at'])
             ], 'User data retrieved successfully', 200);
@@ -124,7 +128,6 @@ class AuthController extends Controller
             return $this->json(null, 'Failed to retrieve user data', 500);
         }
     }
-
     /**
      * @OA\Post(
      *     path="/api/auth/register",
@@ -155,13 +158,14 @@ class AuthController extends Controller
             $validated = $request->validate([
                 'name' => 'required|string|max:255|min:2',
                 'email' => 'required|email|max:255|unique:users,email',
-                'password' => 'required|string|min:8|confirmed',
+                'password' => 'required|string|min:8',
             ]);
 
             $user = User::create([
                 'name' => $validated['name'],
                 'email' => $validated['email'],
                 'password' => Hash::make($validated['password']),
+                'role' => 'customer',
             ]);
 
             $token = $user->createToken('authToken', ['*'], now()->addDays(7))->plainTextToken;

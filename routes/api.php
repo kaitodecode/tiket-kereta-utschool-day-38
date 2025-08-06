@@ -28,11 +28,12 @@ Route::prefix("auth")->controller(AuthController::class)->group(function(){
     Route::post("/login", "login");
     Route::post("/register", "register");
     Route::post("/logout", "logout");
-    Route::get("/me", "me");
+    Route::get("/me", "me")->middleware("auth:sanctum");
 });
 
 Route::prefix("schedules")->controller(ScheduleController::class)->group(function () {
     Route::get("/", "index");
+    Route::get("/pagination", "pagination");
     Route::get("/{schedule}", "show");
     Route::post("/", "store")->middleware("auth:sanctum");
     Route::put("/{schedule}", "update")->middleware("auth:sanctum");

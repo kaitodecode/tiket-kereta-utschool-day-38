@@ -159,7 +159,8 @@
                         "description": "Origin station ID",
                         "required": true,
                         "schema": {
-                            "type": "integer"
+                            "type": "string",
+                            "format": "uuid"
                         }
                     },
                     {
@@ -168,7 +169,8 @@
                         "description": "Destination station ID",
                         "required": true,
                         "schema": {
-                            "type": "integer"
+                            "type": "string",
+                            "format": "uuid"
                         }
                     },
                     {
@@ -236,6 +238,47 @@
                 "responses": {
                     "201": {
                         "description": "Schedule created successfully"
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    }
+                }
+            }
+        },
+        "/api/schedules/pagination": {
+            "get": {
+                "tags": [
+                    "Schedules"
+                ],
+                "summary": "Get paginated list of all schedules",
+                "operationId": "2c56bf93e6f16ced178597c3dd695cf3",
+                "responses": {
+                    "200": {
+                        "description": "List of schedules retrieved successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "current_page": {
+                                            "type": "integer"
+                                        },
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object"
+                                            }
+                                        },
+                                        "total": {
+                                            "type": "integer"
+                                        },
+                                        "per_page": {
+                                            "type": "integer"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
                     },
                     "400": {
                         "description": "Bad request"

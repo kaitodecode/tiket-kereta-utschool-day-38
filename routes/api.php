@@ -3,6 +3,7 @@
 
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\BookingController;
 use App\Http\Controllers\ScheduleController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -39,6 +40,16 @@ Route::prefix("schedules")->controller(ScheduleController::class)->group(functio
     Route::put("/{schedule}", "update")->middleware("auth:sanctum");
     Route::delete("/{schedule}", "destroy")->middleware("auth:sanctum");
 });
+
+Route::prefix("bookings")->controller(BookingController::class)->group(function () {
+    Route::get("/", "index");
+    Route::get("/history", "history")->middleware("auth:sanctum");  
+    Route::get("/{booking}", "show");
+    Route::post("/", "store")->middleware("auth:sanctum");
+    Route::put("/{booking}", "update")->middleware("auth:sanctum");
+    Route::delete("/{booking}", "destroy")->middleware("auth:sanctum");
+});
+
 
 
 

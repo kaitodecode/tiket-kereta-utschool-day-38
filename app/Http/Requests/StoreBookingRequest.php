@@ -16,7 +16,11 @@ class StoreBookingRequest extends BaseRequest
     public function rules()
     {
         return [
-            //
+            'schedule_id' => 'required|uuid|exists:schedules,id',
+            'passengers' => 'required|array',
+            'passengers.*.name' => 'required|string|max:255|min:2',
+            'passengers.*.id_number' => 'required|string|max:255',
+            'passengers.*.status' => 'required|string|in:child,adult',
         ];
     }
 }

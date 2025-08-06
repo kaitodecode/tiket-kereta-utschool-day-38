@@ -42,6 +42,9 @@ class Handler extends ExceptionHandler
                 return $this->json(null, "Route not found", 404);
             }
 
+            if ($exception instanceof \Illuminate\Validation\ValidationException) {
+                return $this->json($exception->errors(), $exception->getMessage(), 422);
+            }
             // Tambahkan pengecekan error lainnya jika perlu
         }
 

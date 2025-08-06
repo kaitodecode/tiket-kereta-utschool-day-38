@@ -7,6 +7,29 @@ use Illuminate\Http\Request;
 
 class AuthController extends Controller
 {
+    /**
+     * @OA\Post(
+     *     path="/api/auth/login",
+     *     summary="User login",
+     *     tags={"Authentication"},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"email","password"},
+     *             @OA\Property(property="email", type="string", format="email"),
+     *             @OA\Property(property="password", type="string")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Login successful"
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Invalid credentials"
+     *     )
+     * )
+     */
     public function login(Request $request)
     {
         $request->validate([
@@ -28,6 +51,18 @@ class AuthController extends Controller
         ], 'Login successful', 200);
     }
 
+    /**
+     * @OA\Post(
+     *     path="/api/auth/logout",
+     *     summary="User logout",
+     *     tags={"Authentication"},
+     *     security={{"sanctum": {}}},
+     *     @OA\Response(
+     *         response=200,
+     *         description="Logout successful"
+     *     )
+     * )
+     */
     public function logout(Request $request)
     {
         $request->user()->tokens()->delete();
@@ -35,11 +70,47 @@ class AuthController extends Controller
         return $this->json(null, 'Logout successful', 200);
     }
 
+    /**
+     * @OA\Get(
+     *     path="/api/auth/me",
+     *     summary="Get current user data",
+     *     tags={"Authentication"},
+     *     security={{"sanctum": {}}},
+     *     @OA\Response(
+     *         response=200,
+     *         description="User data retrieved successfully"
+     *     )
+     * )
+     */
     public function me(Request $request)
     {
         return $this->json($request->user(), 'User data', 200);
     }
 
+    /**
+     * @OA\Post(
+     *     path="/api/auth/register",
+     *     summary="User registration",
+     *     tags={"Authentication"},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"name","email","password"},
+     *             @OA\Property(property="name", type="string"),
+     *             @OA\Property(property="email", type="string", format="email"),
+     *             @OA\Property(property="password", type="string", minLength=8)
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=201,
+     *         description="Registration successful"
+     *     ),
+     *     @OA\Response(
+     *         response=400,
+     *         description="Validation error"
+     *     )
+     * )
+     */
     public function register(Request $request)
     {
         $request->validate([

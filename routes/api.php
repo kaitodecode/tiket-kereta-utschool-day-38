@@ -1,12 +1,15 @@
 <?php
 
+
+
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ScheduleController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 /*
-|--------------------------------------------------------------------------
+|---------------------------
+-----------------------------------------------
 | API Routes
 |--------------------------------------------------------------------------
 |
@@ -28,10 +31,30 @@ Route::prefix("auth")->controller(AuthController::class)->group(function(){
     Route::get("/me", "me");
 });
 
-Route::prefix("schedule")->controller(ScheduleController::class)->group(function () {
+Route::prefix("schedules")->controller(ScheduleController::class)->group(function () {
     Route::get("/", "index");
     Route::get("/{schedule}", "show");
     Route::post("/", "store");
     Route::put("/{schedule}", "update");
     Route::delete("/{schedule}", "destroy");
 });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

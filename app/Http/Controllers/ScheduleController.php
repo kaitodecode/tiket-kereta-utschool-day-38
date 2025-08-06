@@ -1,7 +1,5 @@
 <?php
-
 namespace App\Http\Controllers;
-
 use App\Models\Schedule;
 use App\Http\Requests\StoreScheduleRequest;
 use App\Http\Requests\UpdateScheduleRequest;
@@ -9,51 +7,129 @@ use App\Models\Route;
 use App\Models\Train;
 use Exception;
 use Illuminate\Http\Request;
-
 class ScheduleController extends Controller
 {
     /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
+     * @OA\Get(
+     *     path="/api/schedules",
+     *     summary="Get list of schedules",
+     *     tags={"Schedules"},
+     *     @OA\Parameter(
+     *         name="origin_id",
+     *         in="query",
+     *         required=true,
+     *         description="Origin station ID",
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Parameter(
+     *         name="destination_id", 
+     *         in="query",
+     *         required=true,
+     *         description="Destination station ID",
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Parameter(
+     *         name="departure_time",
+     *         in="query",
+     *         required=false,
+     *         description="Departure date filter (Y-m-d)",
+     *         @OA\Schema(type="string", format="date")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="List of schedules retrieved successfully"
+     *     ),
+     *     @OA\Response(
+     *         response=400,
+     *         description="Bad request"
+     *     )
+     * )
      */
     public function index(Request $req)
     {
         try {
             $query = Schedule::query();
-
             $origin_id = $req->query("origin_id");
             $destination_id = $req->query("destination_id");
-
             if (!$origin_id || !$destination_id) {
                 return $this->json(null, "origin_id and destination_id is required", 400);
             }
-
             $route = Route::query()->where("origin_id", $origin_id)->where("destination_id", $destination_id)->first();
-
             if (!$route) {
                 return $this->json(null, "Route from origin and destination not found", 400);
             }
-
             $query = $query->where("route_id", $route->id);
-
             if ($req->has("departure_time")) {
                 $query = $query->whereDate("departure_time", ">=", $req->query("departure_time"));
             }
-
             $schedules = $query->paginate(10);
-
             return $this->json($schedules);
         } catch (Exception $th) {
             return $this->json($th->getMessage(), "Bad Response", 400);
         }
     }
+    /**
+     * @OA\Get(
+     *     path="/api/schedules/{schedule}",
+     *     summary="Get a specific schedule",
+     *     tags={"Schedules"},
+     *     @OA\Parameter(
+     *         name="schedule",
+     *         in="path",
+     *         required=true,
+     *         description="Schedule ID",
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Schedule retrieved successfully"
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="Schedule not found"
+     *     )
+     * )
+     */
+    public function show(Schedule $schedule)
+    {
+        try {
+            $schedule = Schedule::with(['train', 'route.origin', 'route.destination'])->find($schedule->id);
+            
+            if (!$schedule) {
+                return $this->json(null, "Schedule not found", 404);
+            }
+
+            return $this->json($schedule, "Schedule retrieved successfully", 200);
+        } catch (Exception $e) {
+            return $this->json(null, $e->getMessage(), 400);
+        }
+    }
 
     /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \App\Http\Requests\StoreScheduleRequest  $request
-     * @return \Illuminate\Http\Response
+     * @OA\Post(
+     *     path="/api/schedules",
+     *     summary="Create a new schedule",
+     *     tags={"Schedules"},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"train_id","route_id","departure_time","arrival_time","price"},
+     *             @OA\Property(property="train_id", type="string"),
+     *             @OA\Property(property="route_id", type="string"),
+     *             @OA\Property(property="departure_time", type="string", format="datetime"),
+     *             @OA\Property(property="arrival_time", type="string", format="datetime"),
+     *             @OA\Property(property="price", type="number")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=201,
+     *         description="Schedule created successfully"
+     *     ),
+     *     @OA\Response(
+     *         response=400,
+     *         description="Bad request"
+     *     )
+     * )
      */
     public function store(StoreScheduleRequest $request)
     {
@@ -96,40 +172,48 @@ class ScheduleController extends Controller
             $data['seat_available'] = $trainExist->capacity;
             $schedule = Schedule::create($data);
 
-            return $this->json($schedule, "Schedule created", 201);
+            return $this->json($schedule, "Schedule created successfully", 201);
         } catch (Exception $th) {
-            return $this->json($th, "Bad Response", 400);
+            return $this->json($th->getMessage(), "Bad Response", 400);
         }
     }
 
     /**
-     * Display the specified resource.
-     *
-     * @param  \App\Models\Schedule  $schedule
-     * @return \Illuminate\Http\Response
-     */
-    public function show(Schedule $schedule)
-    {
-        try {
-            $schedule = Schedule::find($schedule->id);
-            
-            if (!$schedule) {
-                return $this->json(null, "Schedule not found", 404);
-            }
-
-            return $this->json($schedule, "Schedule found", 200);
-        } catch (Exception $e) {
-            return $this->json(null, $e->getMessage(), 400);
-        }
-    }
-
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \App\Http\Requests\UpdateScheduleRequest  $request
-     * @param  \App\Models\Schedule  $schedule
-     * @return \Illuminate\Http\Response
+     * @OA\Put(
+     *     path="/api/schedules/{schedule}",
+     *     summary="Update a schedule",
+     *     tags={"Schedules"},
+     *     @OA\Parameter(
+     *         name="schedule",
+     *         in="path",
+     *         required=true,
+     *         description="Schedule ID",
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"train_id","route_id","departure_time","arrival_time","price"},
+     *             @OA\Property(property="train_id", type="string"),
+     *             @OA\Property(property="route_id", type="string"),
+     *             @OA\Property(property="departure_time", type="string", format="datetime"),
+     *             @OA\Property(property="arrival_time", type="string", format="datetime"),
+     *             @OA\Property(property="price", type="number")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Schedule updated successfully"
+     *     ),
+     *     @OA\Response(
+     *         response=400,
+     *         description="Bad request"
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="Schedule not found"
+     *     )
+     * )
      */
     public function update(UpdateScheduleRequest $request, Schedule $schedule)
     {
@@ -188,10 +272,30 @@ class ScheduleController extends Controller
     }
 
     /**
-     * Remove the specified resource from storage.
-     *
-     * @param  \App\Models\Schedule  $schedule
-     * @return \Illuminate\Http\Response
+     * @OA\Delete(
+     *     path="/api/schedules/{schedule}",
+     *     summary="Delete a schedule",
+     *     tags={"Schedules"},
+     *     @OA\Parameter(
+     *         name="schedule",
+     *         in="path",
+     *         required=true,
+     *         description="Schedule ID",
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Schedule deleted successfully"
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="Schedule not found"
+     *     ),
+     *     @OA\Response(
+     *         response=400,
+     *         description="Bad request"
+     *     )
+     * )
      */
     public function destroy(Schedule $schedule)
     {

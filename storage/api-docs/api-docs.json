@@ -364,6 +364,204 @@
                     }
                 }
             }
+        },
+        "/api/trains": {
+            "get": {
+                "tags": [
+                    "Trains"
+                ],
+                "summary": "Get list of trains",
+                "operationId": "e187d2b5a42f73172704a564db750130",
+                "parameters": [
+                    {
+                        "name": "class",
+                        "in": "query",
+                        "description": "Filter trains by class",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "capacity",
+                        "in": "query",
+                        "description": "Filter trains by capacity",
+                        "required": false,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List of trains retrieved successfully"
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Trains"
+                ],
+                "summary": "Create a new train",
+                "operationId": "483928605da856ed50d9caff7818b1ec",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "name",
+                                    "class",
+                                    "code",
+                                    "capacity"
+                                ],
+                                "properties": {
+                                    "name": {
+                                        "type": "string"
+                                    },
+                                    "class": {
+                                        "type": "string"
+                                    },
+                                    "code": {
+                                        "type": "string"
+                                    },
+                                    "capacity": {
+                                        "type": "integer"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Train created successfully"
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    }
+                }
+            }
+        },
+        "/api/trains/{train}": {
+            "get": {
+                "tags": [
+                    "Trains"
+                ],
+                "summary": "Get a specific train",
+                "operationId": "15eb02164f2bf374a9991aff3c597fa8",
+                "parameters": [
+                    {
+                        "name": "train",
+                        "in": "path",
+                        "description": "Train ID",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Train retrieved successfully"
+                    },
+                    "404": {
+                        "description": "Train not found"
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "Trains"
+                ],
+                "summary": "Update a train",
+                "operationId": "524b90d0f69dcd17ed406bbbc7566192",
+                "parameters": [
+                    {
+                        "name": "train",
+                        "in": "path",
+                        "description": "Train ID",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "name",
+                                    "class",
+                                    "code",
+                                    "capacity"
+                                ],
+                                "properties": {
+                                    "name": {
+                                        "type": "string"
+                                    },
+                                    "class": {
+                                        "type": "string"
+                                    },
+                                    "code": {
+                                        "type": "string"
+                                    },
+                                    "capacity": {
+                                        "type": "integer"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Train updated successfully"
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    },
+                    "404": {
+                        "description": "Train not found"
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "Trains"
+                ],
+                "summary": "Delete a train",
+                "operationId": "e88b21ec7b7e324296c65e3e4818b8fd",
+                "parameters": [
+                    {
+                        "name": "train",
+                        "in": "path",
+                        "description": "Train ID",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Train deleted successfully"
+                    },
+                    "404": {
+                        "description": "Train not found"
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    }
+                }
+            }
         }
     },
     "components": {
@@ -384,6 +582,10 @@
         {
             "name": "Schedules",
             "description": "Schedules"
+        },
+        {
+            "name": "Trains",
+            "description": "Trains"
         }
     ]
 }

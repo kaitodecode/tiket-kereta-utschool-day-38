@@ -6,6 +6,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ScheduleController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\TrainController;
 
 /*
 |---------------------------
@@ -18,6 +19,9 @@ use Illuminate\Support\Facades\Route;
 | is assigned the "api" middleware group. Enjoy building your API!
 |
 */
+
+Route::apiResource('trains', TrainController::class);
+
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
@@ -39,6 +43,13 @@ Route::prefix("schedules")->controller(ScheduleController::class)->group(functio
     Route::delete("/{schedule}", "destroy")->middleware("auth:sanctum");
 });
 
+Route::prefix("trains")->controller(TrainController::class)->group(function () {
+    Route::get("/", "index");
+    Route::get("/{train}", "show");
+    Route::post("/", "store");
+    Route::put("/{train}", "update");
+    Route::delete("/{train}", "destroy");
+});
 
 
 

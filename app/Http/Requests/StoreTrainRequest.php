@@ -15,7 +15,10 @@ class StoreTrainRequest extends BaseRequest
     public function rules()
     {
         return [
-            //
+            "name" => "required|string",
+            "class" => "required|string",
+            "code" => "required|string",
+            "capacity" => "required|integer|gt:0"
         ];
     }
 }

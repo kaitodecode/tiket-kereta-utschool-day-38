@@ -16,3 +16,7 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     return view('welcome');
 });
+
+
+Route::get('/payment/success/{booking}', [\App\Http\Controllers\BookingController::class, 'success']);
+Route::get('/payment/failure/{booking}', [\App\Http\Controllers\BookingController::class, 'failure']);

@@ -5,8 +5,14 @@ namespace App\Http\Controllers;
 use App\Models\Booking;
 use App\Http\Requests\StoreBookingRequest;
 use App\Http\Requests\UpdateBookingRequest;
+use App\Models\Payment;
 use App\Models\Schedule;
+use App\Services\XenditService;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Xendit\Configuration;
+use Xendit\Invoice\CreateInvoiceRequest;
+use Xendit\Invoice\InvoiceApi;
 
 /**
  * @OA\Schema(
@@ -23,6 +29,19 @@ use Illuminate\Support\Facades\DB;
  */
 class BookingController extends Controller
 {
+
+    private $xenditClient;
+    public function __construct()
+    {
+        $xenditKey = config('services.xendit.secret_key');
+        if (empty($xenditKey)) {
+            Log::error('Xendit secret key is not configured');
+            throw new \Exception('Payment gateway configuration error');
+        }
+        Configuration::setXenditKey($xenditKey);
+        $this->xenditClient = new InvoiceApi();
+    }
+
     /**
      * @OA\Get(
      *     path="/api/bookings",
@@ -167,72 +186,144 @@ class BookingController extends Controller
      *     )
      * )
      */
-    public function store(StoreBookingRequest $request)
-    {
-        try {
-            $data = $request->validated();
+public function store(StoreBookingRequest $request)
+{
+    try {
+        $data = $request->validated();
 
-            return DB::transaction(function () use ($data) {
-                $schedule = Schedule::lockForUpdate()->find($data['schedule_id']);
+        return DB::transaction(function () use ($data) {
+            $schedule = Schedule::lockForUpdate()->find($data['schedule_id']);
 
-                if (!$schedule) {
-                    return $this->json(null,"Schedule not found", 404);
+            if (!$schedule) {
+                return $this->json(null, "Schedule not found", 404);
+            }
+
+            $totalPrice = 0;
+            $seatNow = $schedule->seat_available;
+            $adultPassenger = 0;
+
+            if ($seatNow <= 0 || $seatNow < count($data['passengers'])) {
+                return $this->json(null, "Train is full", 400);
+            }
+
+            $booking = Booking::create([
+                'user_id' => auth()->user()->id,
+                'schedule_id' => $data['schedule_id'],
+                'total_price' => 0,
+                'status' => 'pending',
+            ]);
+
+            $bookingPassengers = [];
+
+            foreach ($data['passengers'] as $passenger) {
+                if (empty($passenger['name']) || empty($passenger['id_number']) || empty($passenger['status'])) {
+                    return $this->json(null, "Invalid passenger data", 400);
                 }
 
-                $totalPrice = 0;
-                $seatNow = $schedule->seat_available;
-                $adultPassenger = 0;
+                $bookingPassengers[] = [
+                    'name' => $passenger['name'],
+                    'id_number' => $passenger['id_number'],
+                    'seat_number' => $seatNow--,
+                    'status' => $passenger['status'],
+                ];
 
-                if ($seatNow <= 0 || $seatNow < count($data['passengers'])) {
-                    return $this->json(null,"Train is full",400);
+                if ($passenger['status'] == 'adult') {
+                    $adultPassenger++;
+                    $totalPrice += $schedule->price;
                 }
+            }
 
-                $booking = Booking::create([
-                    'user_id' => auth()->user()->id,
-                    'schedule_id' => $data['schedule_id'],
-                    'total_price' => 0,
+            if (XenditService::isHasUnpaidOrders($booking->user_id)) {
+                return $this->json(null, 'You have an unpaid order. Please complete it first.', 400);
+            }
+
+            $invoiceRequest = new CreateInvoiceRequest([
+                'external_id' => (string)$booking->id,
+                'amount' => (float)$totalPrice,
+                'description' => "Credit Order #" . $booking->id,
+                'customer' => [
+                    'given_names' => auth()->user()->name,
+                    'email' => auth()->user()->email,
+                ],
+                'currency' => 'IDR',
+                'invoice_duration' => 3600,
+                'success_redirect_url' => config('app.url') . '/payment/success/' . $booking->id,
+                'failure_redirect_url' => config('app.url') . '/payment/failure/' . $booking->id,
+            ]);
+
+            try {
+                $invoice = $this->xenditClient->createInvoice($invoiceRequest);
+            } catch (\Exception $xenditException) {
+                Log::error('Xendit API Error: ' . $xenditException->getMessage());
+                return $this->json(null, 'Payment gateway error. Please try again later.', 500);
+            }
+
+            try {
+                $payment = Payment::create([
+                    'booking_id' => $booking->id,
+                    'amount' => (float)$totalPrice,
                     'status' => 'pending',
+                    'payment_id' => $invoice->getId(),
+                    'payment_url' => $invoice->getInvoiceUrl(),
+                    'payment_type' => 'xendit',
                 ]);
+            } catch (\Exception $e) {
+                Log::error('Payment Creation Error: ' . $e->getMessage());
+                return $this->json($e->getMessage(), 'Error creating payment record', 500);
+            }
 
-                $bookingPassengers = [];
+            $booking->total_price = $totalPrice;
+            $booking->save();
 
-                foreach ($data['passengers'] as $passenger) {
-                    // Validate passenger data
-                    if (empty($passenger['name']) || empty($passenger['id_number']) || empty($passenger['status'])) {
-                        return $this->json(null,"Invalid passenger data",400);
-                    }
+            $booking->passengers()->createMany($bookingPassengers);
 
-                    $bookingPassengers[] = [
-                        'name' => $passenger['name'],
-                        'id_number' => $passenger['id_number'],
-                        'seat_number' => $seatNow--,
-                        'status' => $passenger['status'],
-                    ];
+            $schedule->seat_available -= $adultPassenger;
+            $schedule->save();
 
-                    if ($passenger['status'] == 'adult') {
-                        $adultPassenger++;
-                        $totalPrice += $schedule->price;
-                    }
-                }
-
-                $booking->total_price = $totalPrice;
-                $booking->save();
-
-                $booking->passengers()->createMany($bookingPassengers);
-
-                $schedule->seat_available -= $adultPassenger;
-                $schedule->save();
-
-                return $this->json([
-                    'message' => 'Booking created',
-                    'data' => $booking->load('passengers'),
-                ], 201);
-            });
-
-        } catch (\Exception $e) {
-            return $this->json($e->getMessage(),"Failed to create booking", 500);
-        }
+            return $this->json([
+                'message' => 'Booking created',
+                'data' => $booking->load('passengers'),
+                'payment' => $payment,
+            ], 201);
+        });
+    } catch (\Exception $e) {
+        Log::error('Booking Creation Error: ' . $e->getMessage());
+        return $this->json(null, "Failed to create booking: " . $e->getMessage(), 500);
     }
+}
+
+public function success(Booking $booking)
+{
+    $booking = Booking::find($booking->id);
+
+    if (!$booking) {
+        return $this->json([
+            'message' => 'Booking not found',
+        ], 404);
+    }
+
+    $booking->status = 'paid';
+    $booking->save();
+
+    return view('payments.success', compact('booking'));
+}
+
+public function failure(Booking $booking)
+{
+    $booking = Booking::find($booking->id);
+
+    if (!$booking) {
+        return $this->json([
+            'message' => 'Booking not found',
+        ], 404);
+    }
+
+
+    $booking->status = 'failed';
+    $booking->save();
+
+    return view('payments.failed', compact('booking'));
+}
 
     /**
      * @OA\Get(

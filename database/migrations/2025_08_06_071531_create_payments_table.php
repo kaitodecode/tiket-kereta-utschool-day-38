@@ -16,8 +16,11 @@ return new class extends Migration
         Schema::create('payments', function (Blueprint $table) {
             $table->uuid("id")->primary();
             $table->foreignUuid("booking_id")->references("id")->on("bookings");
-            $table->decimal("amount");
+            $table->decimal("amount", 10, 2);
             $table->string("status");
+            $table->string("payment_id");
+            $table->string("payment_url");
+            $table->string("payment_type");
             $table->timestamps();
             $table->softDeletes();
         });

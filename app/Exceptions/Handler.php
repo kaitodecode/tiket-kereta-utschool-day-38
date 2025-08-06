@@ -33,35 +33,20 @@ class Handler extends ExceptionHandler
 
     public function render($request, Throwable $exception)
     {
-        if ($request->is('api/*')) {
-            $statusCode = 500; // Default status code for server errors
-
-            // Menentukan status code berdasarkan jenis pengecualian
-            if ($exception instanceof \Illuminate\Auth\AuthenticationException) {
-                $statusCode = 401;
-            } elseif ($exception instanceof \Illuminate\Auth\Access\AuthorizationException) {
-                $statusCode = 403;
-            } elseif ($exception instanceof \Symfony\Component\HttpKernel\Exception\NotFoundHttpException) {
-                $statusCode = 404;
-            } elseif ($exception instanceof \Illuminate\Validation\ValidationException) {
-                $statusCode = 422;
-
-            } elseif ($exception instanceof \Illuminate\Database\Eloquent\ModelNotFoundException) {
-                $statusCode = 404;
-            } elseif ($exception instanceof \Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException) {
-                $statusCode = 405; // Mengembalikan pesan validasi khusus
-            } else {
-                $statusCode = $exception->getCode() ?: 500;
+        if ($request->expectsJson()) {
+            if ($exception instanceof \Illuminate\Database\Eloquent\ModelNotFoundException) {
+                return $this->json(null, "Data not found", 404);
             }
 
-            if ($exception instanceof HttpException){
-                $statusCode = $exception->getStatusCode();
+            if ($exception instanceof \Symfony\Component\HttpKernel\Exception\NotFoundHttpException) {
+                return $this->json(null, "Route not found", 404);
             }
 
-            return $this->json(null,$exception->getMessage(),$statusCode);
+            // Tambahkan pengecekan error lainnya jika perlu
         }
+
+        // Tambahkan pengecekan error lainnya jika perlu
 
         return parent::render($request, $exception);
     }
-
 }

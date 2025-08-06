@@ -2,7 +2,9 @@
 
 namespace App\Http\Requests;
 
+use App\Traits\HasResponse;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Log;
 
 class BaseRequest extends FormRequest
 {
@@ -14,5 +16,19 @@ class BaseRequest extends FormRequest
     public function authorize()
     {
         return true;
+    }
+
+    public function failedValidation(\Illuminate\Contracts\Validation\Validator $validator)
+    {
+        Log::error('Validation failed:', $validator->errors()->toArray());
+
+        throw new \Illuminate\Validation\ValidationException(
+            $validator,
+            response()->json([
+                'success' => false,
+                'message' => 'Bad Request',
+                'data' => $validator->errors()
+            ], 422)
+        );
     }
 }

@@ -43,6 +43,25 @@ class Handler extends ExceptionHandler
      */
     public function register()
     {
+        $this->renderable(function (Throwable $e, $request) {
+            if ($request->is('api/*')) {
+                // dd($e);
+                if ($e instanceof \Illuminate\Validation\ValidationException) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Validation failed',
+                        'data' => $e->errors(),
+                    ], 422);
+                }
+                
+                return response()->json([
+                    'success' => false,
+                    'message' => $e->getMessage(),
+                    'data' => null
+                ], 500);
+            }
+        });
+
         $this->reportable(function (Throwable $e) {
             //
         });

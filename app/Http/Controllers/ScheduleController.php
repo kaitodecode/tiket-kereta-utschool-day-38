@@ -23,22 +23,22 @@ class ScheduleController extends Controller
             $query = Schedule::query();
 
             $origin_id = $req->query("origin_id");
-            $destionation_id = $req->query("destionation_id");
+            $destination_id = $req->query("destination_id");
 
-            if (!$origin_id || !$destionation_id){
-                $this->json(null, "origin_id and destionation_id is required", 400);
+            if (!$origin_id || !$destination_id){
+                return $this->json(null, "origin_id and destination_id is required", 400);
             }
 
-            $route = Route::query()->where("origin_id", $origin_id)->where("destionation_id", $destionation_id)->first();
+            $route = Route::query()->where("origin_id", $origin_id)->where("destination_id", $destination_id)->first();
 
             if(!$route){
-                $this->json(null, "Route from origin and destionation not found", 400);
+                return $this->json(null, "Route from origin and destination not found", 400);
             }
 
-            $query = $query->where("route_id", $route->id)->where("departure_time", ">=", date("Y-m-d H:i:s", strtotime("+1 hour")));
+            $query = $query->where("route_id", $route->id);
 
-            if($req->query("departure_time")){
-                $query = $query->where("departure_time", $req->query("departure_time"));
+            if($req->has("departure_time")){
+                $query = $query->whereDate("departure_time", ">=", $req->query("departure_time"));
             }
 
             $schedules = $query->paginate(10);
@@ -48,16 +48,6 @@ class ScheduleController extends Controller
         } catch (Exception $th) {
             return $this->json($th->getMessage(), "Bad Response", 400);
         }
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
     }
 
     /**
@@ -75,11 +65,11 @@ class ScheduleController extends Controller
             $routeExist = Route::find($data['route_id']);
 
             if (!$trainExist) {
-                throw new \Exception('Train not found');
+                return $this->json(null, "Train not found", 400);
             }
 
             if (!$routeExist) {
-                throw new \Exception('Route not found');
+                return $this->json(null, "Route not found", 400);
             }
 
             $schedule = Schedule::create($data);
@@ -99,19 +89,20 @@ class ScheduleController extends Controller
      */
     public function show(Schedule $schedule)
     {
-        //
+        try {
+            $schedule = Schedule::find($schedule->id);
+
+            if (!$schedule) {
+                $this->json(null, "Schedule not found", 400);
+                return;
+            }
+
+            $this->json($schedule);
+        } catch (Exception $th) {
+            $this->json($th, "Bad Response", 400);
+        }
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Models\Schedule  $schedule
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(Schedule $schedule)
-    {
-        //
-    }
 
     /**
      * Update the specified resource in storage.
@@ -122,7 +113,33 @@ class ScheduleController extends Controller
      */
     public function update(UpdateScheduleRequest $request, Schedule $schedule)
     {
-        //
+        try {
+            $data = $request->validated();
+
+            $schedule = Schedule::find($schedule->id);
+
+            if (!$schedule) {
+                $this->json(null, "Schedule not found", 400);
+                return;
+            }
+
+            $trainExist = Train::find($data['train_id']);
+            $routeExist = Route::find($data['route_id']);
+
+            if (!$trainExist) {
+                return $this->json(null, "Train not found", 400);
+            }
+
+            if (!$routeExist) {
+                return $this->json(null, "Route not found", 400);
+            }
+
+            $schedule->update($data);
+
+            $this->json($schedule);
+        } catch (Exception $th) {
+            $this->json($th, "Bad Response", 400);
+        }
     }
 
     /**
@@ -133,6 +150,19 @@ class ScheduleController extends Controller
      */
     public function destroy(Schedule $schedule)
     {
-        //
+        try {
+            $schedule = Schedule::find($schedule->id);
+
+            if (!$schedule) {
+                $this->json(null, "Schedule not found", 400);
+                return;
+            }
+
+            $schedule->delete();
+
+            $this->json($schedule);
+        } catch (Exception $th) {
+            $this->json($th, "Bad Response", 400);
+        }
     }
 }

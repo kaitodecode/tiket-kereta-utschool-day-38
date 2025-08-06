@@ -19,14 +19,14 @@ class ScheduleController extends Controller
      *         in="query",
      *         required=true,
      *         description="Origin station ID",
-     *         @OA\Schema(type="integer")
+     *         @OA\Schema(type="string", format="uuid")
      *     ),
      *     @OA\Parameter(
      *         name="destination_id", 
      *         in="query",
      *         required=true,
      *         description="Destination station ID",
-     *         @OA\Schema(type="integer")
+     *         @OA\Schema(type="string", format="uuid")
      *     ),
      *     @OA\Parameter(
      *         name="departure_time",
@@ -68,6 +68,38 @@ class ScheduleController extends Controller
             return $this->json($th->getMessage(), "Bad Response", 400);
         }
     }
+
+
+    /**
+     * @OA\Get(
+     *     path="/api/schedules/pagination",
+     *     summary="Get paginated list of all schedules",
+     *     tags={"Schedules"},
+     *     @OA\Response(
+     *         response=200,
+     *         description="List of schedules retrieved successfully",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="current_page", type="integer"),
+     *             @OA\Property(property="data", type="array",
+     *                 @OA\Items(type="object")
+     *             ),
+     *             @OA\Property(property="total", type="integer"),
+     *             @OA\Property(property="per_page", type="integer")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=400,
+     *         description="Bad request"
+     *     )
+     * )
+     */
+    public function pagination(Request $req)
+    {
+        $schedules = Schedule::paginate(10);
+        return $this->json($schedules);
+    }
+
     /**
      * @OA\Get(
      *     path="/api/schedules/{schedule}",

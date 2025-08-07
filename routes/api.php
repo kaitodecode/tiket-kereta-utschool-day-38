@@ -31,7 +31,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 
 
-Route::prefix("auth")->controller(AuthController::class)->group(function(){
+Route::prefix("auth")->controller(AuthController::class)->group(function () {
     Route::post("/login", "login");
     Route::post("/register", "register");
     Route::post("/logout", "logout");
@@ -47,13 +47,16 @@ Route::prefix("schedules")->controller(ScheduleController::class)->group(functio
     Route::delete("/{schedule}", "destroy")->middleware("auth:sanctum");
 });
 
-Route::prefix("trains")->controller(TrainController::class)->group(function () {
-    Route::get("/", "index");
-    Route::get("/{train}", "show");
-    Route::post("/", "store");
-    Route::put("/{train}", "update");
-    Route::delete("/{train}", "destroy");
+Route::prefix('trains')->controller(TrainController::class)->group(function () {
+    Route::get('/allnopgnation', 'allRoutesNoPagination');
+    Route::get('/', 'index');  // Get list of trains with pagination
+    Route::get('/{train}', 'show'); // Get specific train by ID
+    Route::post('/', 'store'); // Create a new train
+    Route::put('/{train}', 'update'); // Update a train by ID
+    Route::delete('/{train}', 'destroy'); // Delete a train by ID
 });
+
+
 Route::prefix("bookings")->controller(BookingController::class)->group(function () {
     Route::get("/", "index");
     Route::get("/history", "history")->middleware("auth:sanctum");
@@ -64,6 +67,7 @@ Route::prefix("bookings")->controller(BookingController::class)->group(function 
 });
 Route::prefix("stations")->controller(StationController::class)->group(function () {
     Route::get("/", "index");
+    Route::get('/all', 'allRoutes');
     Route::get("/{station}", "show");
     Route::post("/", "store");
     Route::put("/{station}", "update");
@@ -79,24 +83,3 @@ Route::prefix("routes")->controller(RouteController::class)->group(function () {
     Route::put("/{route}", "update");
     Route::delete("/{route}", "destroy");
 });
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

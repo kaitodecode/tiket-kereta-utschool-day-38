@@ -1225,7 +1225,6 @@
                         "name": "station",
                         "in": "path",
                         "description": "Station ID",
-                        "required": true,
                         "schema": {
                             "type": "string"
                         }
@@ -1237,6 +1236,23 @@
                     },
                     "404": {
                         "description": "Station not found"
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    }
+                }
+            }
+        },
+        "/api/stations/all": {
+            "get": {
+                "tags": [
+                    "Stations"
+                ],
+                "summary": "Get all stations without pagination",
+                "operationId": "eaea65552ae2070b25ab2b49bcbd0b1b",
+                "responses": {
+                    "200": {
+                        "description": "All stations retrieved successfully"
                     },
                     "400": {
                         "description": "Bad request"
@@ -1268,6 +1284,16 @@
                         "required": false,
                         "schema": {
                             "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "pagination",
+                        "in": "query",
+                        "description": "Enable or disable pagination. Default is true.",
+                        "required": false,
+                        "schema": {
+                            "type": "boolean",
+                            "default": true
                         }
                     }
                 ],
@@ -1435,6 +1461,35 @@
                     },
                     "404": {
                         "description": "Train not found"
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    }
+                }
+            }
+        },
+        "/api/trains/allnopgnation": {
+            "get": {
+                "tags": [
+                    "Trains"
+                ],
+                "summary": "Get all trains without pagination",
+                "operationId": "fec3481235f517547b99d92b11f32143",
+                "parameters": [
+                    {
+                        "name": "Accept",
+                        "in": "header",
+                        "description": "Accept header for JSON response",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "default": "application/json"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "All trains retrieved successfully"
                     },
                     "400": {
                         "description": "Bad request"

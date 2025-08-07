@@ -129,7 +129,7 @@ class BookingController extends Controller
             return $this->json(null, "Unauthorized", 401);
         }
 
-        $bookings = Booking::with(['schedule', 'passengers'])
+        $bookings = Booking::with(['schedule', 'passengers', 'payment', 'schedule.train', 'schedule.route.origin', 'schedule.route.destination'])
             ->where('user_id', $user->id)
             ->get();
 

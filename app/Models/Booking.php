@@ -18,4 +18,14 @@ class Booking extends BaseModel
         return $this->belongsTo(Schedule::class);
     }
 
+    public function payment()
+    {
+        return $this->hasOne(Payment::class);
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
 }

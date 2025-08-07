@@ -88,7 +88,7 @@ class BookingController extends Controller
     public function index()
     {
         $perPage = request()->get('per_page', 10);
-        $bookings = Booking::with(['schedule', 'passengers'])->paginate($perPage);
+        $bookings = Booking::with(['schedule', 'passengers', 'payment', 'schedule.train', 'schedule.route.origin', 'schedule.route.destination'])->paginate($perPage);
 
         return $this->json($bookings, "Bookings retrieved", 200);
     }

@@ -571,6 +571,79 @@
                 ]
             }
         },
+        "/api/dashboard/admin": {
+            "get": {
+                "tags": [
+                    "Dashboard"
+                ],
+                "summary": "Get admin dashboard data",
+                "operationId": "52c3e2b4aeb4e575d0515eb6112b803a",
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Dashboard Admin"
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "total_station": {
+                                                    "type": "integer",
+                                                    "example": 10
+                                                },
+                                                "total_train": {
+                                                    "type": "integer",
+                                                    "example": 5
+                                                },
+                                                "total_route": {
+                                                    "type": "integer",
+                                                    "example": 15
+                                                },
+                                                "total_schedule": {
+                                                    "type": "integer",
+                                                    "example": 30
+                                                },
+                                                "total_booking": {
+                                                    "type": "integer",
+                                                    "example": 100
+                                                },
+                                                "profit_4_last_month": {
+                                                    "type": "object",
+                                                    "example": {
+                                                        "January": 1000000,
+                                                        "February": 1500000,
+                                                        "March": 2000000,
+                                                        "April": 2500000
+                                                    }
+                                                },
+                                                "profit_7_last_week": {
+                                                    "type": "object",
+                                                    "example": {
+                                                        "April 1": 100000,
+                                                        "April 2": 150000,
+                                                        "April 3": 200000
+                                                    }
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/routes": {
             "get": {
                 "tags": [
@@ -1509,6 +1582,10 @@
         {
             "name": "Bookings",
             "description": "Bookings"
+        },
+        {
+            "name": "Dashboard",
+            "description": "Dashboard"
         },
         {
             "name": "Routes",

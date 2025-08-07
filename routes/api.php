@@ -4,6 +4,7 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BookingController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ScheduleController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -79,6 +80,11 @@ Route::prefix("routes")->controller(RouteController::class)->group(function () {
     Route::put("/{route}", "update");
     Route::delete("/{route}", "destroy");
 });
+
+Route::prefix("dashboard")->controller(DashboardController::class)->group(function () {
+    Route::get("/admin", "DashboardAdmin");
+});
+
 
 
 

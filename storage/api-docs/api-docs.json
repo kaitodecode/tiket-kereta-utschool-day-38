@@ -660,6 +660,23 @@
                 }
             }
         },
+        "/api/routes/with-stations": {
+            "get": {
+                "tags": [
+                    "Routes"
+                ],
+                "summary": "Get list of routes with station relations",
+                "operationId": "c2657adcfd7528db1ea8438ba1a0685a",
+                "responses": {
+                    "200": {
+                        "description": "List of routes with station relations retrieved successfully"
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    }
+                }
+            }
+        },
         "/api/routes/{route}": {
             "get": {
                 "tags": [
@@ -672,7 +689,6 @@
                         "name": "route",
                         "in": "path",
                         "description": "Route ID",
-                        "required": true,
                         "schema": {
                             "type": "string"
                         }

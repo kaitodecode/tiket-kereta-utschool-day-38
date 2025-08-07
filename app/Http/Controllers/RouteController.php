@@ -93,6 +93,35 @@ class RouteController extends Controller
         }
     }
 
+        /**
+     * @OA\Get(
+     *     path="/api/routes/with-stations",
+     *     summary="Get list of routes with station relations",
+     *     tags={"Routes"},
+     *     @OA\Response(
+     *         response=200,
+     *         description="List of routes with station relations retrieved successfully"
+     *     ),
+     *     @OA\Response(
+     *         response=400,
+     *         description="Bad request"
+     *     )
+     * )
+     */
+    public function routesWithStations(Request $req)
+    {
+        try {
+            // Mengambil semua data rute dengan relasi ke origin (station) dan destination (station)
+            $routes = Route::with(['origin', 'destination'])->get();
+
+            // Mengembalikan data rute dengan relasi stations
+            return $this->json($routes, 200);
+        } catch (Exception $th) {
+            return $this->json(['error' => $th->getMessage()], 400);
+        }
+    }
+
+
     /**
      * @OA\Get(
      *     path="/api/routes/{route}",
@@ -101,7 +130,6 @@ class RouteController extends Controller
      *     @OA\Parameter(
      *         name="route",
      *         in="path",
-     *         required=true,
      *         description="Route ID",
      *         @OA\Schema(type="string")
      *     ),

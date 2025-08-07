@@ -73,6 +73,7 @@ Route::prefix("stations")->controller(StationController::class)->group(function 
 Route::prefix("routes")->controller(RouteController::class)->group(function () {
     Route::get("/", "index");
     Route::get("/all", "allRoutes");
+    Route::get("/with-stations", "routesWithStations");
     Route::get("/{route}", "show");
     Route::post("/", "store");
     Route::put("/{route}", "update");

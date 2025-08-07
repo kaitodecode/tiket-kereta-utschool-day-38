@@ -250,6 +250,7 @@ public function store(StoreBookingRequest $request)
                 'invoice_duration' => 3600,
                 'success_redirect_url' => config('app.url') . '/payment/success/' . $booking->id,
                 'failure_redirect_url' => config('app.url') . '/payment/failure/' . $booking->id,
+                
             ]);
 
             try {

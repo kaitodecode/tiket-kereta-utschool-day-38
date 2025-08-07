@@ -40,7 +40,7 @@ class RouteController extends Controller
     {
         try {
             // Filter routes based on origin and destination station IDs
-            $query = Route::query();
+            $query = Route::with(['origin', 'destination']);
 
             if ($req->has("origin_id")) {
                 $query = $query->where("origin_id", $req->query("origin_id"));

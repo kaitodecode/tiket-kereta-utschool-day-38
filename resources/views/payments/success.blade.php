@@ -8,10 +8,10 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         :root {
-            --primary-color: #4CAF50;
-            --secondary-color: #81C784;
-            --dark-color: #1a1a1a;
-            --text-color: #E8F5E9;
+            --primary-color: #EAB308;
+            --secondary-color: #FDE047;
+            --dark-color: #111827;
+            --text-color: #F3F4F6;
         }
         
         body {
@@ -30,12 +30,12 @@
             width: 100%;
             height: 100%;
             background: 
-                radial-gradient(circle at 10% 20%, rgba(76, 175, 80, 0.1) 0%, transparent 50%),
-                radial-gradient(circle at 90% 80%, rgba(129, 199, 132, 0.1) 0%, transparent 50%);
+                radial-gradient(circle at 10% 20%, rgba(234, 179, 8, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 90% 80%, rgba(253, 224, 71, 0.1) 0%, transparent 50%);
             z-index: -1;
         }
 
-        .floating-shapes {
+        .floating-trains {
             position: fixed;
             width: 100%;
             height: 100%;
@@ -45,23 +45,24 @@
             overflow: hidden;
         }
 
-        .shape {
+        .train-shape {
             position: absolute;
-            border-radius: 50%;
-            background: rgba(76, 175, 80, 0.05);
-            animation: float 15s infinite linear;
+            font-size: 24px;
+            color: rgba(234, 179, 8, 0.1);
+            animation: float-train 20s infinite linear;
         }
 
-        @keyframes float {
-            0% { transform: translateY(0) rotate(0deg); }
-            100% { transform: translateY(-100vh) rotate(360deg); }
+        @keyframes float-train {
+            0% { transform: translateX(-100%) translateY(0); }
+            100% { transform: translateX(100vw) translateY(-20px); }
         }
         
         .card {
-            background-color: rgba(45, 45, 45, 0.9);
+            background-color: rgba(31, 41, 55, 0.9);
             border: 2px solid var(--primary-color);
             backdrop-filter: blur(10px);
-            box-shadow: 0 8px 32px rgba(76, 175, 80, 0.2);
+            box-shadow: 0 8px 32px rgba(234, 179, 8, 0.2);
+            border-radius: 1rem;
         }
         
         .success-icon {
@@ -78,37 +79,54 @@
         
         .text-highlight {
             color: var(--primary-color);
-            text-shadow: 0 0 10px rgba(76, 175, 80, 0.3);
+            text-shadow: 0 0 10px rgba(234, 179, 8, 0.3);
         }
         
         .lead {
-            color: #B0BEC5;
+            color: #9CA3AF;
             line-height: 1.6;
         }
         
         .btn-theme {
             background-color: var(--primary-color);
-            color: white;
+            color: var(--dark-color);
             border: none;
             padding: 12px 25px;
             border-radius: 25px;
             transition: all 0.3s;
-            box-shadow: 0 4px 15px rgba(76, 175, 80, 0.2);
+            box-shadow: 0 4px 15px rgba(234, 179, 8, 0.2);
+            font-weight: bold;
         }
         
         .btn-theme:hover {
             background-color: var(--secondary-color);
             transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(76, 175, 80, 0.3);
+            box-shadow: 0 6px 20px rgba(234, 179, 8, 0.3);
+        }
+
+        .train-icon-container {
+            position: relative;
+            display: inline-block;
+        }
+
+        .train-track {
+            width: 200px;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary-color), transparent);
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            border-radius: 2px;
         }
     </style>
 </head>
 <body>
-    <div class="floating-shapes">
-        <div class="shape" style="left: 10%; width: 80px; height: 80px; animation-duration: 20s;"></div>
-        <div class="shape" style="left: 30%; width: 60px; height: 60px; animation-duration: 25s;"></div>
-        <div class="shape" style="left: 60%; width: 100px; height: 100px; animation-duration: 30s;"></div>
-        <div class="shape" style="left: 80%; width: 50px; height: 50px; animation-duration: 22s;"></div>
+    <div class="floating-trains">
+        <i class="fas fa-train train-shape" style="left: 10%; animation-duration: 25s;"></i>
+        <i class="fas fa-subway train-shape" style="left: 30%; animation-duration: 30s;"></i>
+        <i class="fas fa-train train-shape" style="left: 60%; animation-duration: 20s;"></i>
+        <i class="fas fa-subway train-shape" style="left: 80%; animation-duration: 28s;"></i>
     </div>
 
     <div class="container">
@@ -116,14 +134,18 @@
             <div class="col-md-6 text-center">
                 <div class="card shadow">
                     <div class="card-body py-5">
-                        <div class="mb-4">
-                            <i class="fas fa-check-circle success-icon"></i>
+                        <div class="mb-4 train-icon-container">
+                            <i class="fas fa-train-subway success-icon"></i>
+                            <div class="train-track"></div>
                         </div>
-                        <h2 class="mt-3 text-highlight">Payment Successful!</h2>
-                        <p class="lead mb-4">Thank you for your purchase. Your transaction has been completed successfully.</p>
-                        <div class="mt-4">
+                        <h2 class="mt-4 text-highlight">Payment Successful!</h2>
+                        <p class="lead mb-4">Your ticket has been booked successfully. Have a safe journey!</p>
+                        <div class="mt-4 d-flex justify-content-center gap-3">
                             <a href="/" class="btn btn-theme">
                                 <i class="fas fa-home me-2"></i>Back to Home
+                            </a>
+                            <a href="/tickets" class="btn btn-theme">
+                                <i class="fas fa-ticket me-2"></i>View Ticket
                             </a>
                         </div>
                     </div>

@@ -206,6 +206,7 @@ public function store(StoreBookingRequest $request)
                 return $this->json(null, "Train is full", 400);
             }
 
+
             $booking = Booking::create([
                 'user_id' => auth()->user()->id,
                 'schedule_id' => $data['schedule_id'],

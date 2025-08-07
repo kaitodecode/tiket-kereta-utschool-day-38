@@ -12,10 +12,10 @@ use Illuminate\Routing\Controller as BaseController;
 /**
  * @OA\Info(
  *     version="1.0.0",
- *     title="Train Ticket Booking API",
- *     description="API Documentation for Train Ticket Booking System",
+ *     title="UTrains API",
+ *     description="API Documentation for UTrains System",
  *     @OA\Contact(
- *         email="admin@example.com",
+ *         email="kaitodecode@example.com",
  *         name="API Support"
  *     ),
  *     @OA\License(

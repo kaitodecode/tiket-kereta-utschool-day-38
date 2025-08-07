@@ -4,7 +4,6 @@ namespace Database\Seeders;
 
 use App\Models\Route;
 use App\Models\Station;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
 class RouteSeeder extends Seeder

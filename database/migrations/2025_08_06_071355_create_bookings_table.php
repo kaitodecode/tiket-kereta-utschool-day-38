@@ -17,7 +17,7 @@ return new class extends Migration
             $table->uuid("id")->primary();
             $table->foreignUuid("user_id")->references("id")->on("users");
             $table->foreignUuid("schedule_id")->references("id")->on("schedules");
-            $table->decimal("total_price");
+            $table->bigInteger("total_price");
             $table->enum("status", ["pending", "paid", "canceled", "failed"]);
             $table->string("reason_canceled")->nullable();
             $table->timestamps();

@@ -64,7 +64,7 @@ class AuthController extends Controller
         $token = $user->createToken('authToken', ['*'], now()->addDays(7))->plainTextToken;
 
         return $this->json([
-            'user' => $user->only(['id', 'name', 'email', 'created_at']),
+            'user' => $user->only(['id', 'name', 'email', 'created_at', 'role']),
             'token' => $token,
             'expires_at' => now()->addDays(7)->toISOString()
         ], 'Login successful', 200);

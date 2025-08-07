@@ -48,7 +48,7 @@ class ScheduleController extends Controller
     public function index(Request $req)
     {
         try {
-            $query = Schedule::query();
+            $query = Schedule::with(['train', 'route.origin', 'route.destination'])->query();
             $origin_id = $req->query("origin_id");
             $destination_id = $req->query("destination_id");
             if (!$origin_id || !$destination_id) {
@@ -96,7 +96,7 @@ class ScheduleController extends Controller
      */
     public function pagination(Request $req)
     {
-        $schedules = Schedule::paginate(10);
+        $schedules = Schedule::with(['train', 'route.origin', 'route.destination'])->paginate(10);
         return $this->json($schedules);
     }
 

@@ -1,11 +1,11 @@
 {
     "openapi": "3.0.0",
     "info": {
-        "title": "Train Ticket Booking API",
-        "description": "API Documentation for Train Ticket Booking System",
+        "title": "UTrains API",
+        "description": "API Documentation for UTrains System",
         "contact": {
             "name": "API Support",
-            "email": "admin@example.com"
+            "email": "kaitodecode@example.com"
         },
         "license": {
             "name": "Apache 2.0",

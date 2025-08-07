@@ -46,6 +46,7 @@ class ScheduleController extends Controller
      * )
      */
     public function index(Request $req)
+
     {
         try {
             $query = Schedule::with(['train', 'route.origin', 'route.destination'])->query();
@@ -66,8 +67,33 @@ class ScheduleController extends Controller
             return $this->json($schedules);
         } catch (Exception $th) {
             return $this->json($th->getMessage(), "Bad Response", 400);
+
         }
+
+        $route = Route::query()
+            ->where("origin_id", $origin_id)
+            ->where("destination_id", $destination_id)
+            ->first();
+
+        if (!$route) {
+            return $this->json(null, "Route from origin and destination not found", 400);
+        }
+
+        $query = Schedule::with(['train', 'route.origin', 'route.destination'])
+            ->where("route_id", $route->id);
+
+        if ($req->has("departure_time")) {
+            $query->whereDate("departure_time", ">=", $req->query("departure_time"));
+        }
+
+        $schedules = $query->paginate(10);
+
+        return $this->json($schedules);
+    } catch (Exception $th) {
+        return $this->json($th->getMessage(), "Bad Response", 400);
     }
+}
+
 
 
     /**

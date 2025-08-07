@@ -189,7 +189,6 @@ class StationController extends Controller
      *     @OA\Parameter(
      *         name="station",
      *         in="path",
-     *         required=true,
      *         description="Station ID",
      *         @OA\Schema(type="string")
      *     ),
@@ -221,4 +220,36 @@ class StationController extends Controller
             return $this->respondJson(['error' => $e->getMessage()], 400); // Using the renamed method
         }
     }
+/**
+ * @OA\Get(
+ *     path="/api/stations/all",
+ *     summary="Get all stations without pagination",
+ *     tags={"Stations"},
+ *     @OA\Response(
+ *         response=200,
+ *         description="All stations retrieved successfully"
+ *     ),
+ *     @OA\Response(
+ *         response=400,
+ *         description="Bad request"
+ *     )
+ * )
+ */
+public function allRoutes(Request $req)
+{
+    try {
+        // Mengambil semua data tanpa pagination
+        $stations = Station::all(); // Menggunakan get() untuk mengambil semua data tanpa pagination
+
+        // Mengembalikan hasil sebagai JSON
+        return response()->json([
+            'success' => true,
+            'data' => $stations
+        ], 200);
+    } catch (\Exception $th) {
+        return response()->json([
+            'error' => $th->getMessage()
+        ], 400); // Menangani error jika terjadi
+    }
+}
 }

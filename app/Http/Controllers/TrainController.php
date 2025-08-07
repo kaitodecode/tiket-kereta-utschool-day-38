@@ -29,6 +29,13 @@ class TrainController extends Controller
      *         description="Filter trains by capacity",
      *         @OA\Schema(type="integer")
      *     ),
+     *     @OA\Parameter(
+     *         name="pagination",
+     *         in="query",
+     *         required=false,
+     *         description="Enable or disable pagination. Default is true.",
+     *         @OA\Schema(type="boolean", default=true)
+     *     ),
      *     @OA\Response(
      *         response=200,
      *         description="List of trains retrieved successfully"
@@ -53,12 +60,34 @@ class TrainController extends Controller
                 $query = $query->where("capacity", ">=", $req->query("capacity"));
             }
 
-            $trains = $query->paginate(10);
-            return $this->json($trains, 200); // Directly use Laravel's json() method
+            // Get pagination value from query (default is true)
+            $pagination = $req->query('pagination', true);
+
+            if ($pagination === "false") {
+                // If pagination is false, get all data without pagination
+                $trains = $query->get();  // Use get() to retrieve all records without pagination
+            } else {
+                // Use pagination if true
+                $trains = $query->paginate(10);
+            }
+
+            // Return data as JSON
+            return $this->json([
+                'success' => true,
+                'data' => $trains
+            ], 200);
         } catch (Exception $th) {
-            return $this->json(['error' => $th->getMessage()], 400); // Directly use Laravel's json() method
+            return $this->json([
+                'error' => $th->getMessage()
+            ], 400); // Handle error if any
         }
     }
+
+
+
+
+
+
 
     /**
      * @OA\Get(
@@ -91,6 +120,7 @@ class TrainController extends Controller
             return $this->json(['error' => $e->getMessage()], 400); // Directly use Laravel's json() method
         }
     }
+
 
     /**
      * @OA\Post(
@@ -220,6 +250,45 @@ class TrainController extends Controller
             return $this->json($train, 200); // Directly use Laravel's json() method
         } catch (Exception $e) {
             return $this->json(['error' => $e->getMessage()], 400); // Directly use Laravel's json() method
+        }
+    }
+    /**
+     * @OA\Get(
+     *     path="/api/trains/allnopgnation",
+     *     summary="Get all trains without pagination",
+     *     tags={"Trains"},
+     *     @OA\Parameter(
+     *         name="Accept",
+     *         in="header",
+     *         required=true,
+     *         description="Accept header for JSON response",
+     *         @OA\Schema(type="string", default="application/json")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="All trains retrieved successfully"
+     *     ),
+     *     @OA\Response(
+     *         response=400,
+     *         description="Bad request"
+     *     )
+     * )
+     */
+    public function allRoutesNoPagination(Request $req)
+    {
+        try {
+            // Mengambil semua data tanpa pagination
+            $trains = Train::all(); // Menggunakan all() untuk mengambil semua data tanpa pagination
+
+            // Mengembalikan hasil sebagai JSON menggunakan this->json()
+            return $this->json([
+                'success' => true,
+                'data' => $trains
+            ], 200);
+        } catch (\Exception $th) {
+            return $this->json([
+                'error' => $th->getMessage()
+            ], 400); // Menangani error jika terjadi
         }
     }
 }

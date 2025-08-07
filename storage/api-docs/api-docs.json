@@ -571,6 +571,203 @@
                 ]
             }
         },
+        "/api/routes": {
+            "get": {
+                "tags": [
+                    "Routes"
+                ],
+                "summary": "Get list of routes",
+                "operationId": "25d3d0d0f5d12b021dc6272e30293e95",
+                "parameters": [
+                    {
+                        "name": "origin_id",
+                        "in": "query",
+                        "description": "Origin station ID",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "destination_id",
+                        "in": "query",
+                        "description": "Destination station ID",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List of routes retrieved successfully"
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Routes"
+                ],
+                "summary": "Create a new route",
+                "operationId": "b33c4c1179bc9292122b3d06edfeaff1",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "origin_id",
+                                    "destination_id"
+                                ],
+                                "properties": {
+                                    "origin_id": {
+                                        "type": "string"
+                                    },
+                                    "destination_id": {
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Route created successfully"
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    }
+                }
+            }
+        },
+        "/api/routes/all": {
+            "get": {
+                "tags": [
+                    "Routes"
+                ],
+                "summary": "Get all routes without pagination",
+                "operationId": "2ebc978817e8a7f29c7ebbaf7b4a6701",
+                "responses": {
+                    "200": {
+                        "description": "All routes retrieved successfully"
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    }
+                }
+            }
+        },
+        "/api/routes/{route}": {
+            "get": {
+                "tags": [
+                    "Routes"
+                ],
+                "summary": "Get a specific route",
+                "operationId": "0d7912d6ddf3c73533e494de94e7ff8f",
+                "parameters": [
+                    {
+                        "name": "route",
+                        "in": "path",
+                        "description": "Route ID",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Route retrieved successfully"
+                    },
+                    "404": {
+                        "description": "Route not found"
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "Routes"
+                ],
+                "summary": "Update a route",
+                "operationId": "5762d568f1a0ba0690fca0f2eececf05",
+                "parameters": [
+                    {
+                        "name": "route",
+                        "in": "path",
+                        "description": "Route ID",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "origin_id",
+                                    "destination_id"
+                                ],
+                                "properties": {
+                                    "origin_id": {
+                                        "type": "string"
+                                    },
+                                    "destination_id": {
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Route updated successfully"
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    },
+                    "404": {
+                        "description": "Route not found"
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "Routes"
+                ],
+                "summary": "Delete a route",
+                "operationId": "8b154a1e0fc7b4ccf7ec78a043692140",
+                "parameters": [
+                    {
+                        "name": "route",
+                        "in": "path",
+                        "description": "Route ID",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Route deleted successfully"
+                    },
+                    "404": {
+                        "description": "Route not found"
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    }
+                }
+            }
+        },
         "/api/schedules": {
             "get": {
                 "tags": [
@@ -1296,6 +1493,10 @@
         {
             "name": "Bookings",
             "description": "Bookings"
+        },
+        {
+            "name": "Routes",
+            "description": "Routes"
         },
         {
             "name": "Schedules",

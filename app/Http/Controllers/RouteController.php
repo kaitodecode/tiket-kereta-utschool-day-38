@@ -75,7 +75,7 @@ class RouteController extends Controller
     public function allRoutes(Request $req)
     {
         try {
-            $query = Route::query();
+            $query = Route::query()->with(['origin', 'destination']);
 
             // Filter berdasarkan origin_id dan destination_id jika ada
             if ($req->has("origin_id")) {

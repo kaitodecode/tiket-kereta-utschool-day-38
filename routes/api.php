@@ -8,6 +8,8 @@ use App\Http\Controllers\ScheduleController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\TrainController;
+use App\Http\Controllers\stationController;
+use App\Http\Controllers\RouteController;
 
 /*
 |---------------------------
@@ -60,8 +62,22 @@ Route::prefix("bookings")->controller(BookingController::class)->group(function 
     Route::put("/{booking}", "update")->middleware("auth:sanctum");
     Route::delete("/{booking}", "destroy")->middleware("auth:sanctum");
 });
+Route::prefix("stations")->controller(StationController::class)->group(function () {
+    Route::get("/", "index");
+    Route::get("/{station}", "show");
+    Route::post("/", "store");
+    Route::put("/{station}", "update");
+    Route::delete("/{station}", "destroy");
+});
 
-
+Route::prefix("routes")->controller(RouteController::class)->group(function () {
+    Route::get("/", "index");
+    Route::get("/all", "allRoutes");
+    Route::get("/{route}", "show");
+    Route::post("/", "store");
+    Route::put("/{route}", "update");
+    Route::delete("/{route}", "destroy");
+});
 
 
 
